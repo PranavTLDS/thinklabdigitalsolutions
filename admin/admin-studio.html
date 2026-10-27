@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThinkLab Studio — Visual In-Page Website Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700;800&family=Unbounded:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #07070a;
+      --bg-surface: #0e0e14;
+      --bg-panel: rgba(14, 14, 20, 0.88);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-active: rgba(162, 128, 255, 0.5);
+      --accent-purple: #7e6ff0;
+      --accent-purple-glow: rgba(126, 111, 240, 0.28);
+      --accent-purple-bright: #a280ff;
+      --accent-orange: #f58327;
+      --accent-orange-glow: rgba(245, 131, 39, 0.25);
+      --text-main: #fcfcf7;
+      --text-muted: #8c8c9e;
+      --text-dim: #5c5c6d;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --font-display: 'Unbounded', sans-serif;
+      --font-body: 'League Spartan', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(162, 128, 255, 0.4);
+    }
+
+    /* Top Studio Bar */
+    .studio-header {
+      height: 64px;
+      background: rgba(11, 11, 16, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      position: relative;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 14px;
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-purple-glow);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-pill {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      background: rgba(162, 128, 255, 0.15);
+      border: 1px solid rgba(162, 128, 255, 0.3);
+      color: var(--accent-purple-bright);
+      padding: 2px 7px;
+      border-radius: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--card-border);
+    }
+
+    /* Page Switcher Dropdown */
+    .page-select-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .page-select {
+      background: rgba(22, 22, 32, 0.85);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 7px 32px 7px 14px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      appearance: none;
+      transition: all 0.2s;
+    }
+
+    .page-select:focus, .page-select:hover {
+      border-color: var(--accent-purple-bright);
+      outline: none;
+      box-shadow: 0 0 12px var(--accent-purple-glow);
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 12px;
+      pointer-events: none;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Center Viewport Switcher */
+    .viewport-controls {
+      display: flex;
+      align-items: center;
+      background: rgba(20, 20, 28, 0.7);
+      padding: 3px;
+      border-radius: 9px;
+      border: 1px solid var(--card-border);
+    }
+
+    .vp-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .vp-btn.active {
+      background: rgba(162, 128, 255, 0.18);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(126, 111, 240, 0.2);
+    }
+
+    .vp-btn:hover:not(.active) {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Header Right Actions */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+      letter-spacing: 0.03em;
+    }
+
+    .status-badge.modified {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: var(--warning);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .btn-icon-subtle {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon-subtle:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-publish {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-orange));
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 16px var(--accent-purple-glow);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-publish:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 24px rgba(126, 111, 240, 0.45);
+      filter: brightness(1.1);
+    }
+
+    .btn-publish:active {
+      transform: translateY(0);
+    }
+
+    /* 3-Pane Layout */
+    .studio-workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Left Sidebar: Pages & Document Structure */
+    .panel-left {
+      width: 270px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(11, 11, 16, 0.6);
+    }
+
+    .sidebar-tab-btn {
+      flex: 1;
+      padding: 12px 6px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .sidebar-tab-btn.active {
+      color: var(--accent-purple-bright);
+      border-bottom-color: var(--accent-purple-bright);
+      background: rgba(162, 128, 255, 0.05);
+    }
+
+    .page-list, .section-nav-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .page-item, .section-nav-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .page-item:hover, .section-nav-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .page-item.active, .section-nav-item.active {
+      background: rgba(126, 111, 240, 0.14);
+      border-color: var(--accent-purple-bright);
+      box-shadow: 0 0 14px var(--accent-purple-glow);
+    }
+
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .item-icon {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .item-sub {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    /* Center Canvas Area (Hosts Exact Iframe) */
+    .panel-center {
+      flex: 1;
+      background: #040407;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ambient glow elements */
+    .canvas-ambient-1 {
+      position: absolute;
+      top: 5%;
+      left: 20%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(126, 111, 240, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+    .canvas-ambient-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(245, 131, 39, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+
+    .viewport-stage {
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      background: #0a0a0a;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 0, 0, 0.6);
+      position: relative;
+      transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .viewport-topbar {
+      height: 32px;
+      background: rgba(18, 18, 26, 0.95);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .w-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .w-red { background: #ff5f56; }
+    .w-yellow { background: #ffbd2e; }
+    .w-green { background: #27c93f; }
+
+    .page-url-indicator {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .live-iframe {
+      width: 100%;
+      flex: 1;
+      border: none;
+      background: #0a0a0a;
+    }
+
+    /* Right Inspector: Apply Style & Element Properties */
+    .panel-right {
+      width: 350px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(24px);
+      border-left: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .inspector-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .inspector-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      background: rgba(162, 128, 255, 0.15);
+      border: 1px solid rgba(162, 128, 255, 0.35);
+      color: var(--accent-purple-bright);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .inspector-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .insp-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .insp-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .insp-input, .insp-textarea, .insp-select {
+      background: rgba(22, 22, 32, 0.95);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .insp-textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.45;
+    }
+
+    .insp-input:focus, .insp-textarea:focus, .insp-select:focus {
+      border-color: var(--accent-purple-bright);
+      outline: none;
+      box-shadow: 0 0 12px var(--accent-purple-glow);
+    }
+
+    /* Style Presets & Palette */
+    .color-swatches {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .swatch:hover, .swatch.active {
+      transform: scale(1.18);
+      border-color: #fff;
+    }
+
+    .range-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .insp-range {
+      flex: 1;
+      accent-color: var(--accent-purple-bright);
+      cursor: pointer;
+    }
+
+    .range-val {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--accent-purple-bright);
+      width: 44px;
+      text-align: right;
+    }
+
+    .empty-inspector-hint {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hint-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* Toast */
+    .studio-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(16, 16, 24, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--accent-purple-bright);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-purple-glow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .studio-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Studio Bar -->
+  <header class="studio-header">
+    <div class="header-left">
+      <a href="/admin" class="brand-group" title="Back to Inquiries & Leads">
+        <div class="brand-mark">TL</div>
+        <div class="brand-title">ThinkLab Studio</div>
+      </a>
+      <span class="brand-pill">Visual Editor</span>
+      <div class="header-divider"></div>
+
+      <!-- Quick Page Switcher -->
+      <div class="page-select-wrapper">
+        <select id="pageSelect" class="page-select">
+          <option value="home" data-url="/">Home Page (index.html)</option>
+          <option value="about-us" data-url="/about-us">About Us (about-us.html)</option>
+          <option value="services" data-url="/services">Services (services.html)</option>
+          <option value="case-studies" data-url="/case-studies">Case Studies (case-studies.html)</option>
+          <option value="reviews" data-url="/reviews">Reviews (reviews.html)</option>
+          <option value="blogs" data-url="/blogs">Blogs (blogs.html)</option>
+          <option value="careers" data-url="/careers">Careers (careers.html)</option>
+          <option value="contact-us" data-url="/contact-us">Contact Us (contact-us.html)</option>
+        </select>
+        <span class="select-arrow">▼</span>
+      </div>
+    </div>
+
+    <!-- Center Viewport Switcher -->
+    <div class="viewport-controls">
+      <button class="vp-btn active" data-width="1200" title="Desktop 1200px">
+        <span>🖥️</span> Desktop
+      </button>
+      <button class="vp-btn" data-width="1024" title="Laptop 1024px">
+        <span>💻</span> Laptop
+      </button>
+      <button class="vp-btn" data-width="768" title="Tablet 768px">
+        <span>📱</span> Tablet
+      </button>
+      <button class="vp-btn" data-width="390" title="Mobile 390px">
+        <span>📲</span> Mobile
+      </button>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="header-right">
+      <div id="statusBadge" class="status-badge">
+        <span class="status-dot"></span>
+        <span id="statusText">Ready to Edit</span>
+      </div>
+
+      <a id="previewBtn" href="/" target="_blank" class="btn-icon-subtle" title="Open Page in New Tab">
+        👁️
+      </a>
+
+      <a href="/admin" class="btn-icon-subtle" title="CRM Leads & Inquiries">
+        📊
+      </a>
+
+      <button id="publishBtn" class="btn-publish">
+        <span>⚡</span> Publish Changes
+      </button>
+    </div>
+  </header>
+
+  <!-- 3-Pane Studio Workspace -->
+  <main class="studio-workspace">
+
+    <!-- Left Sidebar: Pages & Sections Tree -->
+    <aside class="panel-left">
+      <div class="sidebar-tabs">
+        <button id="tabPagesBtn" class="sidebar-tab-btn active">
+          <span>📄</span> Pages (8)
+        </button>
+        <button id="tabSectionsBtn" class="sidebar-tab-btn">
+          <span>🧩</span> Outline
+        </button>
+      </div>
+
+      <!-- Pages List -->
+      <div id="pagesList" class="page-list">
+        <div class="page-item active" data-slug="home" data-url="/">
+          <div class="item-meta">
+            <span class="item-icon">🏠</span>
+            <div>
+              <div class="item-name">Home</div>
+              <div class="item-sub">pages/index.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="about-us" data-url="/about-us">
+          <div class="item-meta">
+            <span class="item-icon">ℹ️</span>
+            <div>
+              <div class="item-name">About Us</div>
+              <div class="item-sub">pages/about-us.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="services" data-url="/services">
+          <div class="item-meta">
+            <span class="item-icon">⚡</span>
+            <div>
+              <div class="item-name">Services</div>
+              <div class="item-sub">pages/services.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="case-studies" data-url="/case-studies">
+          <div class="item-meta">
+            <span class="item-icon">📁</span>
+            <div>
+              <div class="item-name">Case Studies</div>
+              <div class="item-sub">pages/case-studies.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="reviews" data-url="/reviews">
+          <div class="item-meta">
+            <span class="item-icon">⭐</span>
+            <div>
+              <div class="item-name">Reviews</div>
+              <div class="item-sub">pages/reviews.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="blogs" data-url="/blogs">
+          <div class="item-meta">
+            <span class="item-icon">📰</span>
+            <div>
+              <div class="item-name">Blogs</div>
+              <div class="item-sub">pages/blogs.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="careers" data-url="/careers">
+          <div class="item-meta">
+            <span class="item-icon">💼</span>
+            <div>
+              <div class="item-name">Careers</div>
+              <div class="item-sub">pages/careers.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+
+        <div class="page-item" data-slug="contact-us" data-url="/contact-us">
+          <div class="item-meta">
+            <span class="item-icon">✉️</span>
+            <div>
+              <div class="item-name">Contact Us</div>
+              <div class="item-sub">pages/contact-us.html</div>
+            </div>
+          </div>
+          <span style="font-size: 11px; color: var(--accent-purple-bright);">Live</span>
+        </div>
+      </div>
+
+      <!-- Sections on Page Outline -->
+      <div id="sectionNavList" class="section-nav-list" style="display: none;">
+        <!-- Filled dynamically by scanning iframe DOM -->
+      </div>
+    </aside>
+
+    <!-- Center Canvas: Hosts the Exact Live Webpage -->
+    <section class="panel-center">
+      <div class="canvas-ambient-1"></div>
+      <div class="canvas-ambient-2"></div>
+
+      <div id="viewportStage" class="viewport-stage">
+        <div class="viewport-topbar">
+          <div class="window-dots">
+            <div class="w-dot w-red"></div>
+            <div class="w-dot w-yellow"></div>
+            <div class="w-dot w-green"></div>
+          </div>
+          <div id="pageUrlIndicator" class="page-url-indicator">http://localhost:3000/</div>
+          <div style="font-size: 10px; color: var(--accent-purple-bright);">Click any text on page to edit</div>
+        </div>
+
+        <!-- The Exact Webpage Iframe -->
+        <iframe id="liveFrame" class="live-iframe" src="/"></iframe>
+      </div>
+    </section>
+
+    <!-- Right Inspector: Apply Style & Properties Panel -->
+    <aside class="panel-right">
+      <div class="inspector-header">
+        <div class="inspector-title">
+          <span>🎨</span> Apply Style & Content
+        </div>
+        <span id="selectedTagBadge" class="tag-badge">No Selection</span>
+      </div>
+
+      <div class="inspector-body">
+        <div id="emptyHint" class="empty-inspector-hint">
+          <span class="hint-icon">👆</span>
+          <p><strong>Click on any text, title, or button</strong> directly on the webpage to edit text and customize its styles in real-time.</p>
+        </div>
+
+        <div id="inspectorControls" style="display: none; flex-direction: column; gap: 18px;">
+          <!-- Text Content -->
+          <div class="insp-group">
+            <label class="insp-label">Text Content</label>
+            <textarea id="inspText" class="insp-textarea" placeholder="Edit text..."></textarea>
+          </div>
+
+          <!-- Text Color -->
+          <div class="insp-group">
+            <label class="insp-label">Text Color</label>
+            <div class="color-swatches">
+              <div class="swatch" data-color="#fcfcf7" style="background: #fcfcf7;" title="White"></div>
+              <div class="swatch" data-color="#a280ff" style="background: #a280ff;" title="Purple"></div>
+              <div class="swatch" data-color="#f58327" style="background: #f58327;" title="Orange"></div>
+              <div class="swatch" data-color="#10b981" style="background: #10b981;" title="Emerald"></div>
+              <div class="swatch" data-color="#8c8c9e" style="background: #8c8c9e;" title="Muted Gray"></div>
+            </div>
+            <input type="text" id="inspTextColor" class="insp-input" placeholder="#fcfcf7" style="margin-top: 8px;">
+          </div>
+
+          <!-- Font Size -->
+          <div class="insp-group">
+            <label class="insp-label">Font Size</label>
+            <div class="range-group">
+              <input type="range" id="inspFontSize" class="insp-range" min="11" max="80" value="16">
+              <span id="fontSizeVal" class="range-val">16px</span>
+            </div>
+          </div>
+
+          <!-- Font Weight -->
+          <div class="insp-group">
+            <label class="insp-label">Font Weight</label>
+            <select id="inspFontWeight" class="insp-select">
+              <option value="300">Light (300)</option>
+              <option value="400">Regular (400)</option>
+              <option value="500">Medium (500)</option>
+              <option value="600">Semi-Bold (600)</option>
+              <option value="700">Bold (700)</option>
+              <option value="800">Extra-Bold (800)</option>
+            </select>
+          </div>
+
+          <!-- Link Href if applicable -->
+          <div id="linkGroup" class="insp-group" style="display: none;">
+            <label class="insp-label">Button / Link Target URL</label>
+            <input type="text" id="inspLinkHref" class="insp-input" placeholder="e.g. /contact-us or https://...">
+          </div>
+
+          <!-- Background / Glow Atmosphere -->
+          <div class="insp-group" style="border-top: 1px solid var(--card-border); padding-top: 14px;">
+            <label class="insp-label">Ambient Glow / Background</label>
+            <select id="inspGlowPreset" class="insp-select">
+              <option value="none">No Glow (Transparent)</option>
+              <option value="purple">Purple Radial Glow</option>
+              <option value="orange">Orange Radial Glow</option>
+              <option value="glass">Frosted Glass Card</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Live Toast Notification -->
+  <div id="studioToast" class="studio-toast">
+    <span style="font-size: 18px;">⚡</span>
+    <span id="toastMsg">Changes published successfully!</span>
+  </div>
+
+  <script>
+    // State
+    let currentSlug = 'home';
+    let currentUrl = '/';
+    let isModified = false;
+    let selectedElement = null;
+
+    // DOM Elements
+    const liveFrame = document.getElementById('liveFrame');
+    const pageSelect = document.getElementById('pageSelect');
+    const pagesList = document.getElementById('pagesList');
+    const sectionNavList = document.getElementById('sectionNavList');
+    const tabPagesBtn = document.getElementById('tabPagesBtn');
+    const tabSectionsBtn = document.getElementById('tabSectionsBtn');
+    const pageUrlIndicator = document.getElementById('pageUrlIndicator');
+    const previewBtn = document.getElementById('previewBtn');
+    const publishBtn = document.getElementById('publishBtn');
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const viewportStage = document.getElementById('viewportStage');
+    const studioToast = document.getElementById('studioToast');
+    const toastMsg = document.getElementById('toastMsg');
+
+    // Right Inspector Elements
+    const emptyHint = document.getElementById('emptyHint');
+    const inspectorControls = document.getElementById('inspectorControls');
+    const selectedTagBadge = document.getElementById('selectedTagBadge');
+    const inspText = document.getElementById('inspText');
+    const inspTextColor = document.getElementById('inspTextColor');
+    const inspFontSize = document.getElementById('inspFontSize');
+    const fontSizeVal = document.getElementById('fontSizeVal');
+    const inspFontWeight = document.getElementById('inspFontWeight');
+    const linkGroup = document.getElementById('linkGroup');
+    const inspLinkHref = document.getElementById('inspLinkHref');
+    const inspGlowPreset = document.getElementById('inspGlowPreset');
+
+    // Switch Page
+    function switchPage(slug, url) {
+      if (isModified && !confirm('You have unsaved changes on this page. Switch anyway?')) {
+        return;
+      }
+
+      currentSlug = slug;
+      currentUrl = url;
+      pageSelect.value = slug;
+      pageUrlIndicator.textContent = `http://localhost:3000${url}`;
+      previewBtn.href = url;
+
+      // Update active in left list
+      document.querySelectorAll('.page-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.slug === slug);
+      });
+
+      // Clear selection
+      deselectElement();
+
+      // Load into iframe
+      liveFrame.src = url;
+      isModified = false;
+      updateStatusUI();
+    }
+
+    // Update Status Badge
+    function updateStatusUI() {
+      if (isModified) {
+        statusBadge.className = 'status-badge modified';
+        statusText.textContent = 'Modified (Unsaved)';
+      } else {
+        statusBadge.className = 'status-badge';
+        statusText.textContent = 'Ready to Edit';
+      }
+    }
+
+    // Attach In-Page Visual Editor to Iframe
+    liveFrame.addEventListener('load', () => {
+      try {
+        const frameDoc = liveFrame.contentDocument || liveFrame.contentWindow.document;
+        if (!frameDoc) return;
+
+        // Inject editor highlight styling into iframe
+        const styleId = 'thinklab-studio-styles';
+        let editorStyle = frameDoc.getElementById(styleId);
+        if (!editorStyle) {
+          editorStyle = frameDoc.createElement('style');
+          editorStyle.id = styleId;
+          editorStyle.innerHTML = `
+            [data-studio-hover="true"] {
+              outline: 2px dashed rgba(162, 128, 255, 0.75) !important;
+              outline-offset: 3px !important;
+              cursor: pointer !important;
+            }
+            [data-studio-selected="true"] {
+              outline: 2px solid #a280ff !important;
+              outline-offset: 3px !important;
+              box-shadow: 0 0 15px rgba(162, 128, 255, 0.35) !important;
+              background-color: rgba(162, 128, 255, 0.08) !important;
+            }
+            [contenteditable="true"]:focus {
+              outline: 2px solid #f58327 !important;
+              box-shadow: 0 0 15px rgba(245, 131, 39, 0.35) !important;
+            }
+          `;
+          frameDoc.head.appendChild(editorStyle);
+        }
+
+        // Intercept link clicks so user stays on page to edit
+        frameDoc.addEventListener('click', (e) => {
+          const link = e.target.closest('a');
+          if (link) {
+            e.preventDefault();
+          }
+        }, true);
+
+        // Hover effect for text elements
+        frameDoc.addEventListener('mouseover', (e) => {
+          const el = getTargetElement(e.target);
+          if (el && el !== selectedElement) {
+            el.setAttribute('data-studio-hover', 'true');
+          }
+        });
+
+        frameDoc.addEventListener('mouseout', (e) => {
+          const el = getTargetElement(e.target);
+          if (el) {
+            el.removeAttribute('data-studio-hover');
+          }
+        });
+
+        // Click to select and edit
+        frameDoc.addEventListener('click', (e) => {
+          const el = getTargetElement(e.target);
+          if (el) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectElement(el);
+          }
+        });
+
+        // Scan page for outline navigation
+        buildSectionOutline(frameDoc);
+
+      } catch (err) {
+        console.warn('Iframe setup note:', err.message);
+      }
+    });
+
+    // Helper to find editable target
+    function getTargetElement(node) {
+      if (!node || node === liveFrame.contentDocument.body) return null;
+      const validTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SPAN', 'A', 'BUTTON', 'LI'];
+      if (validTags.includes(node.tagName)) return node;
+      return node.closest('h1, h2, h3, h4, h5, h6, p, a, button, span');
+    }
+
+    // Helper to compute a robust CSS selector path
+    function getDomPath(el) {
+      if (!el || el.nodeType !== 1) return '';
+      if (el.id && el.id === 'main') return '#main';
+      const stack = [];
+      let curr = el;
+      while (curr && curr.nodeType === 1 && curr !== liveFrame.contentDocument.body) {
+        let tag = curr.tagName.toLowerCase();
+        const framerName = curr.getAttribute('data-framer-name');
+        if (framerName) {
+          stack.unshift(`${tag}[data-framer-name="${framerName}"]`);
+          break;
+        }
+        let siblingIndex = 1;
+        let sibling = curr.previousElementSibling;
+        while (sibling) {
+          if (sibling.tagName === curr.tagName) siblingIndex++;
+          sibling = sibling.previousElementSibling;
+        }
+        stack.unshift(`${tag}:nth-of-type(${siblingIndex})`);
+        curr = curr.parentElement;
+      }
+      return stack.join(' > ');
+    }
+
+    let activeEdits = {};
+
+    function recordCurrentEdit() {
+      if (!selectedElement) return;
+      let tlId = selectedElement.getAttribute('data-tl-id');
+      if (!tlId) {
+        tlId = 'tl_' + Math.random().toString(36).substring(2, 9);
+        selectedElement.setAttribute('data-tl-id', tlId);
+      }
+      const origText = selectedElement.getAttribute('data-tl-original-text') || selectedElement.textContent.trim();
+      const newText = selectedElement.textContent.trim();
+      const domPath = getDomPath(selectedElement);
+
+      activeEdits[tlId] = {
+        tlId: tlId,
+        originalText: origText,
+        text: newText,
+        selector: domPath,
+        tag: selectedElement.tagName,
+        color: selectedElement.style.color || undefined,
+        fontSize: selectedElement.style.fontSize || undefined,
+        fontWeight: selectedElement.style.fontWeight || undefined,
+        href: selectedElement.getAttribute('href') || (selectedElement.closest('a') ? selectedElement.closest('a').getAttribute('href') : undefined)
+      };
+    }
+
+    // Select Element
+    function selectElement(el) {
+      if (selectedElement) {
+        selectedElement.removeAttribute('data-studio-selected');
+        selectedElement.removeAttribute('contenteditable');
+      }
+
+      selectedElement = el;
+      el.removeAttribute('data-studio-hover');
+      el.setAttribute('data-studio-selected', 'true');
+      el.setAttribute('contenteditable', 'true');
+
+      if (!el.getAttribute('data-tl-id')) {
+        el.setAttribute('data-tl-id', 'tl_' + Math.random().toString(36).substring(2, 9));
+      }
+
+      // Preserve original text before modifications so hydration shield can reliably map it
+      if (!el.getAttribute('data-tl-original-text')) {
+        el.setAttribute('data-tl-original-text', el.textContent.trim());
+      }
+
+      // Sync typing inside iframe to inspector
+      el.oninput = () => {
+        inspText.value = el.textContent;
+        isModified = true;
+        recordCurrentEdit();
+        updateStatusUI();
+      };
+
+      // Populate Inspector
+      emptyHint.style.display = 'none';
+      inspectorControls.style.display = 'flex';
+      selectedTagBadge.textContent = `${el.tagName.toLowerCase()} element`;
+
+      inspText.value = el.textContent.trim();
+
+      // Compute style properties
+      const win = liveFrame.contentWindow;
+      const compStyle = win.getComputedStyle(el);
+
+      inspTextColor.value = rgbToHex(compStyle.color) || '#fcfcf7';
+      const fz = parseInt(compStyle.fontSize, 10) || 16;
+      inspFontSize.value = fz;
+      fontSizeVal.textContent = `${fz}px`;
+
+      inspFontWeight.value = compStyle.fontWeight || '400';
+
+      // Check if inside or is a link
+      const link = el.closest('a') || (el.tagName === 'A' ? el : null);
+      if (link) {
+        linkGroup.style.display = 'flex';
+        inspLinkHref.value = link.getAttribute('href') || '';
+      } else {
+        linkGroup.style.display = 'none';
+      }
+    }
+
+    function deselectElement() {
+      if (selectedElement) {
+        selectedElement.removeAttribute('data-studio-selected');
+        selectedElement.removeAttribute('contenteditable');
+        selectedElement = null;
+      }
+      emptyHint.style.display = 'block';
+      inspectorControls.style.display = 'none';
+      selectedTagBadge.textContent = 'No Selection';
+    }
+
+    // Synchronize Inspector Inputs to Selected Element
+    inspText.addEventListener('input', (e) => {
+      if (selectedElement) {
+        selectedElement.textContent = e.target.value;
+        isModified = true;
+        recordCurrentEdit();
+        updateStatusUI();
+      }
+    });
+
+    inspTextColor.addEventListener('input', (e) => {
+      if (selectedElement) {
+        selectedElement.style.color = e.target.value;
+        isModified = true;
+        recordCurrentEdit();
+        updateStatusUI();
+      }
+    });
+
+    inspFontSize.addEventListener('input', (e) => {
+      if (selectedElement) {
+        selectedElement.style.fontSize = `${e.target.value}px`;
+        fontSizeVal.textContent = `${e.target.value}px`;
+        isModified = true;
+        recordCurrentEdit();
+        updateStatusUI();
+      }
+    });
+
+    inspFontWeight.addEventListener('change', (e) => {
+      if (selectedElement) {
+        selectedElement.style.fontWeight = e.target.value;
+        isModified = true;
+        recordCurrentEdit();
+        updateStatusUI();
+      }
+    });
+
+    inspLinkHref.addEventListener('input', (e) => {
+      if (selectedElement) {
+        const link = selectedElement.closest('a') || (selectedElement.tagName === 'A' ? selectedElement : null);
+        if (link) {
+          link.setAttribute('href', e.target.value);
+          isModified = true;
+          recordCurrentEdit();
+          updateStatusUI();
+        }
+      }
+    });
+
+    // Color Swatches
+    document.querySelectorAll('.swatch').forEach(sw => {
+      sw.addEventListener('click', () => {
+        const color = sw.dataset.color;
+        inspTextColor.value = color;
+        if (selectedElement) {
+          selectedElement.style.color = color;
+          isModified = true;
+          recordCurrentEdit();
+          updateStatusUI();
+        }
+      });
+    });
+
+    // Background Glow Presets
+    inspGlowPreset.addEventListener('change', (e) => {
+      if (!selectedElement) return;
+      const val = e.target.value;
+      if (val === 'purple') {
+        selectedElement.style.backgroundImage = 'radial-gradient(circle, rgba(126, 111, 240, 0.25) 0%, transparent 70%)';
+        selectedElement.style.borderRadius = '12px';
+      } else if (val === 'orange') {
+        selectedElement.style.backgroundImage = 'radial-gradient(circle, rgba(245, 131, 39, 0.22) 0%, transparent 70%)';
+        selectedElement.style.borderRadius = '12px';
+      } else if (val === 'glass') {
+        selectedElement.style.background = 'rgba(255, 255, 255, 0.05)';
+        selectedElement.style.backdropFilter = 'blur(16px)';
+        selectedElement.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+        selectedElement.style.borderRadius = '14px';
+      } else {
+        selectedElement.style.backgroundImage = 'none';
+        selectedElement.style.backgroundColor = 'transparent';
+      }
+      isModified = true;
+      updateStatusUI();
+    });
+
+    // Build Section Outline from Real Iframe DOM
+    function buildSectionOutline(frameDoc) {
+      sectionNavList.innerHTML = '';
+      const sections = frameDoc.querySelectorAll('header, nav, [data-framer-name], section, footer');
+      const seenNames = new Set();
+
+      sections.forEach(sec => {
+        const name = sec.getAttribute('data-framer-name') || sec.tagName.toLowerCase();
+        if (seenNames.has(name) || name === 'div') return;
+        seenNames.add(name);
+
+        const item = document.createElement('div');
+        item.className = 'section-nav-item';
+        item.innerHTML = `
+          <div class="item-meta">
+            <span class="item-icon">📍</span>
+            <div>
+              <div class="item-name">${name}</div>
+              <div class="item-sub">${sec.tagName.toLowerCase()}</div>
+            </div>
+          </div>
+        `;
+
+        item.addEventListener('click', () => {
+          sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.querySelectorAll('.section-nav-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+        });
+
+        sectionNavList.appendChild(item);
+      });
+    }
+
+    // Viewport Switcher Buttons
+    document.querySelectorAll('.vp-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.vp-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const w = btn.dataset.width;
+        viewportStage.style.maxWidth = `${w}px`;
+      });
+    });
+
+    // Left Tabs (Pages vs Outline)
+    tabPagesBtn.addEventListener('click', () => {
+      tabPagesBtn.classList.add('active');
+      tabSectionsBtn.classList.remove('active');
+      pagesList.style.display = 'flex';
+      sectionNavList.style.display = 'none';
+    });
+
+    tabSectionsBtn.addEventListener('click', () => {
+      tabSectionsBtn.classList.add('active');
+      tabPagesBtn.classList.remove('active');
+      pagesList.style.display = 'none';
+      sectionNavList.style.display = 'flex';
+    });
+
+    // Left Page Item Click
+    document.querySelectorAll('.page-item').forEach(item => {
+      item.addEventListener('click', () => {
+        switchPage(item.dataset.slug, item.dataset.url);
+      });
+    });
+
+    pageSelect.addEventListener('change', (e) => {
+      const opt = e.target.selectedOptions[0];
+      switchPage(e.target.value, opt.dataset.url);
+    });
+
+    // PUBLISH CHANGES (Saves Directly to the Real Website HTML Page)
+    publishBtn.addEventListener('click', async () => {
+      publishBtn.disabled = true;
+      publishBtn.innerHTML = '<span>⏳</span> Publishing...';
+
+      try {
+        const frameDoc = liveFrame.contentDocument || liveFrame.contentWindow.document;
+        if (!frameDoc) throw new Error('Cannot access page DOM');
+
+        const mainContainer = frameDoc.getElementById('main');
+        if (!mainContainer || mainContainer.innerHTML.trim().length < 5000) {
+          showToast('Page preview is still loading. Please wait a moment before publishing.');
+          return;
+        }
+
+        // Clean temporary editor highlight attributes and runtime elements before saving
+        const styleTag = frameDoc.getElementById('thinklab-studio-styles');
+        if (styleTag) styleTag.remove();
+
+        frameDoc.querySelectorAll('#tlConsultationModal, #tlCareerModal, .tl-toast').forEach(el => el.remove());
+        frameDoc.querySelectorAll('[data-studio-hover]').forEach(el => el.removeAttribute('data-studio-hover'));
+        frameDoc.querySelectorAll('[data-studio-selected]').forEach(el => el.removeAttribute('data-studio-selected'));
+        frameDoc.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+
+        // Remove any third-party tracker scripts like bestfreecdn
+        frameDoc.querySelectorAll('script').forEach(s => {
+          if (s.src && s.src.includes('bestfreecdn')) {
+            s.remove();
+          }
+        });
+
+        // Combine activeEdits with any existing window.__THINKLAB_EDITS__
+        const frameWin = liveFrame.contentWindow;
+        const finalEdits = Object.assign({}, frameWin.__THINKLAB_EDITS__ || {}, activeEdits);
+
+        // Inject or update <script id="tl-active-edits"> in <head> so it executes before any hydration or body scripts
+        let editScript = frameDoc.getElementById('tl-active-edits');
+        if (!editScript) {
+          editScript = frameDoc.createElement('script');
+          editScript.id = 'tl-active-edits';
+          if (frameDoc.head) {
+            frameDoc.head.prepend(editScript);
+          } else {
+            frameDoc.body.prepend(editScript);
+          }
+        }
+        editScript.textContent = `window.__THINKLAB_EDITS__ = ${JSON.stringify(finalEdits)};`;
+
+        // Ensure thinklab-interactive is included before </body>
+        const hasInteractiveScript = Array.from(frameDoc.querySelectorAll('script')).some(s => s.src && s.src.includes('thinklab-interactive.js'));
+        if (!hasInteractiveScript) {
+          const sc = frameDoc.createElement('script');
+          sc.src = '/scripts/thinklab-interactive.js';
+          sc.defer = true;
+          frameDoc.body.appendChild(sc);
+        }
+
+        // Serialize the clean, modified HTML document
+        const fullHtml = '<!DOCTYPE html>\n' + frameDoc.documentElement.outerHTML;
+
+        // Post to backend save-page endpoint
+        const res = await fetch('/api/cms/save-page', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: currentSlug,
+            html: fullHtml
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          isModified = false;
+          deselectElement();
+          updateStatusUI();
+          showToast(`⚡ "${currentSlug}" published! Refreshing website shows your edits.`);
+        } else {
+          showToast(`Save failed: ${data.error || 'Server error'}`);
+        }
+      } catch (err) {
+        showToast(`Publish error: ${err.message}`);
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.innerHTML = '<span>⚡</span> Publish Changes';
+
+        // Re-trigger load handler to re-inject editor styles & listeners
+        const event = new Event('load');
+        liveFrame.dispatchEvent(event);
+      }
+    });
+
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      studioToast.classList.add('show');
+      setTimeout(() => {
+        studioToast.classList.remove('show');
+      }, 3500);
+    }
+
+    function rgbToHex(rgb) {
+      if (!rgb || !rgb.startsWith('rgb')) return rgb;
+      const parts = rgb.match(/\d+/g);
+      if (!parts || parts.length < 3) return rgb;
+      return '#' + parts.slice(0, 3).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('');
+    }
+  </script>
+
+</body>
+</html>

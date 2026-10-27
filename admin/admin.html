@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal | ThinkLab Digital Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700&family=Unbounded:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0a;
+      --card-bg: rgba(22, 22, 28, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent-purple: #7e6ff0;
+      --accent-orange: #f58327;
+      --text-main: #fcfcf7;
+      --text-muted: #898999;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'League Spartan', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(126, 111, 240, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(245, 131, 39, 0.06) 0%, transparent 45%);
+    }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      height: 38px;
+    }
+
+    .brand-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 40%, var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .badge-status::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: 'League Spartan', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--card-border);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-purple), #9f92ff);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s ease;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(126, 111, 240, 0.4);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .stat-title {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-value {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .stat-sub {
+      font-size: 13px;
+      color: var(--accent-orange);
+      font-weight: 500;
+    }
+
+    /* Tabs */
+    .tabs-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'League Spartan', sans-serif;
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      background: rgba(126, 111, 240, 0.15);
+      border: 1px solid rgba(126, 111, 240, 0.3);
+    }
+
+    .tab-counter {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .tab-btn.active .tab-counter {
+      background: var(--accent-purple);
+    }
+
+    .tab-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      width: 240px;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-purple);
+    }
+
+    /* Table View */
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .user-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .user-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-new {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-contacted,
+    .status-reviewing {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-closed,
+    .status-hired,
+    .status-confirmed,
+    .status-subscribed {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .action-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .action-btn.btn-del:hover {
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal {
+      background: #141419;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #1c1c24;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Case Studies Admin Studio */
+    .cs-admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .cs-admin-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .cs-admin-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .admin-case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .admin-case-card {
+      background: rgba(18, 18, 24, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .admin-case-card:hover {
+      border-color: rgba(126, 111, 240, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .admin-case-thumb-wrap {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .admin-case-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .admin-case-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #c4b5fd;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .admin-case-order {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(126, 111, 240, 0.3);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .admin-case-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .admin-case-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .admin-case-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .admin-case-metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding-top: 10px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .admin-case-metric-val {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .admin-case-metric-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .admin-case-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .form-control {
+      width: 100%;
+      background: #1e1e26;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Case Studies Admin Studio */
+    .cs-admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .cs-admin-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .cs-admin-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .admin-case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .admin-case-card {
+      background: rgba(18, 18, 24, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .admin-case-card:hover {
+      border-color: rgba(126, 111, 240, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .admin-case-thumb-wrap {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .admin-case-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .admin-case-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #c4b5fd;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .admin-case-order {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(126, 111, 240, 0.3);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .admin-case-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .admin-case-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .admin-case-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .admin-case-metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding-top: 10px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .admin-case-metric-val {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .admin-case-metric-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .admin-case-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .form-control {
+      width: 100%;
+      background: #1e1e26;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="/" class="brand">
+      <img src="https://framerusercontent.com/images/kWhHgwwLeKUZk2ISCUfW7vXW6Uw.svg" alt="ThinkLab" class="brand-logo">
+      <span class="brand-title">Admin Command Center</span>
+    </a>
+    <div class="header-actions">
+      <div class="badge-status">System Live & Connected</div>
+      <a href="/admin/studio" class="btn btn-primary"
+        style="background:linear-gradient(135deg, #7e6ff0, #f58327); border:none; box-shadow:0 0 15px rgba(126,111,240,0.35); text-decoration:none;">🎨
+        Visual Page Studio</a>
+      <a href="/" class="btn btn-outline" target="_blank">🌐 View Website</a>
+      <button class="btn btn-primary" onclick="loadAllData()">🔄 Refresh</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Stats Row -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Total Inquiries</span>
+          <div class="stat-icon" style="color:#7e6ff0;">✉️</div>
+        </div>
+        <div class="stat-value" id="stat-total-leads">0</div>
+        <div class="stat-sub" id="stat-new-leads">0 Pending Action</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Consultations</span>
+          <div class="stat-icon" style="color:#34d399;">📅</div>
+        </div>
+        <div class="stat-value" id="stat-total-consultations">0</div>
+        <div class="stat-sub">Reserved Slots</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Job Applications</span>
+          <div class="stat-icon" style="color:#f58327;">💼</div>
+        </div>
+        <div class="stat-value" id="stat-total-careers">0</div>
+        <div class="stat-sub" id="stat-new-careers">0 Under Review</div>
+      </div>
+
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Case Studies</span>
+          <div class="stat-icon" style="color:#a78bfa;">📁</div>
+        </div>
+        <div class="stat-value" id="stat-total-case-studies">4</div>
+        <div class="stat-sub">Live Project Showcase</div>
+      </div>
+
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Case Studies</span>
+          <div class="stat-icon" style="color:#a78bfa;">📁</div>
+        </div>
+        <div class="stat-value" id="stat-total-case-studies">4</div>
+        <div class="stat-sub">Live Project Showcase</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Subscribers</span>
+          <div class="stat-icon" style="color:#60a5fa;">📰</div>
+        </div>
+        <div class="stat-value" id="stat-total-newsletters">0</div>
+        <div class="stat-sub">Active Email Audience</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-bar">
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="contacts" onclick="switchTab('contacts', this)">
+          ✉️ Contact Inquiries <span class="tab-counter" id="cnt-contacts">0</span>
+        </button>
+        <button class="tab-btn" data-tab="consultations" onclick="switchTab('consultations', this)">
+          📅 Consultations <span class="tab-counter" id="cnt-consultations">0</span>
+        </button>
+        <button class="tab-btn" data-tab="careers" onclick="switchTab('careers', this)">
+          💼 Careers & Resumes <span class="tab-counter" id="cnt-careers">0</span>
+        </button>
+        <button class="tab-btn" data-tab="case-studies" onclick="switchTab('case-studies', this)">
+          📁 Case Studies <span class="tab-counter" id="cnt-case-studies">4</span>
+        </button>
+        <button class="tab-btn" data-tab="newsletters" onclick="switchTab('newsletters', this)">
+          📰 Newsletter <span class="tab-counter" id="cnt-newsletters">0</span>
+        </button>
+      </div>
+
+      <div class="tab-actions">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search records..."
+          oninput="handleSearch()">
+        <button class="btn btn-outline" onclick="exportCurrentCSV()">📥 Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Main Content Table -->
+    <div class="table-container">
+      <div id="tableContent">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <!-- Detail Modal -->
+  <div class="modal-backdrop" id="detailModal">
+    <div class="modal">
+      <h3 class="modal-title" id="modalTitle">Submission Details</h3>
+      <div id="modalBody" style="font-size: 15px; line-height: 1.6; color: #ddd; margin-bottom: 24px;"></div>
+      <div style="display:flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTab = 'contacts';
+    let rawData = {
+      contacts: [],
+      consultations: [],
+      careers: [],
+      newsletters: []
+    };
+
+
+    // Case Studies Data & Handlers
+    rawData['case-studies'] = [];
+
+    async function loadCaseStudiesData() {
+      try {
+        const res = await fetch('/api/case-studies');
+        const json = await res.json();
+        if (json.success) {
+          rawData['case-studies'] = json.data || [];
+          document.getElementById('cnt-case-studies').textContent = rawData['case-studies'].length;
+          const statEl = document.getElementById('stat-total-case-studies');
+          if (statEl) statEl.textContent = rawData['case-studies'].length;
+        }
+      } catch (e) {
+        console.error('Error fetching case studies:', e);
+      }
+    }
+
+    function openCaseStudyModal(id = null) {
+      const modal = document.getElementById('caseStudyModal');
+      const form = document.getElementById('csForm');
+      form.reset();
+      document.getElementById('csId').value = '';
+
+      if (id) {
+        document.getElementById('csModalTitle').textContent = 'Edit Case Study';
+        const item = rawData['case-studies'].find(c => c.id === id);
+        if (item) {
+          document.getElementById('csId').value = item.id;
+          document.getElementById('csTitle').value = item.title || '';
+          document.getElementById('csTag').value = item.tag || '';
+          document.getElementById('csYear').value = item.year || '2026';
+          document.getElementById('csOrder').value = item.order_idx || 0;
+          document.getElementById('csDescription').value = item.description || '';
+          document.getElementById('csImageUrl').value = item.image_url || '';
+          document.getElementById('csMetric1Val').value = item.metric1_val || '';
+          document.getElementById('csMetric1Lbl').value = item.metric1_lbl || '';
+          document.getElementById('csMetric2Val').value = item.metric2_val || '';
+          document.getElementById('csMetric2Lbl').value = item.metric2_lbl || '';
+          document.getElementById('csLinkUrl').value = item.link_url || '';
+        }
+      } else {
+        document.getElementById('csModalTitle').textContent = 'Add New Case Study';
+        document.getElementById('csOrder').value = (rawData['case-studies'].length || 0) + 1;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeCsModal() {
+      document.getElementById('caseStudyModal').classList.remove('active');
+    }
+
+    async function handleCaseStudySubmit(e) {
+      e.preventDefault();
+      const form = document.getElementById('csForm');
+      const formData = new FormData(form);
+      const id = document.getElementById('csId').value;
+
+      const btn = document.getElementById('csSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const url = id ? `/api/admin/case-studies/${id}` : '/api/admin/case-studies';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          body: formData
+        });
+
+        const json = await res.json();
+        if (json.success) {
+          showToast(id ? 'Case study updated!' : 'Case study added!', 'success');
+          closeCsModal();
+          await loadCaseStudiesData();
+          renderCurrentTable();
+        } else {
+          showToast(json.error || 'Failed to save case study', 'error');
+        }
+      } catch (err) {
+        showToast('Network error saving case study', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Case Study';
+      }
+    }
+
+    async function deleteCaseStudy(id) {
+      if (!confirm('Are you sure you want to delete this case study? This will also remove it from the homepage.')) return;
+      try {
+        const res = await fetch(`/api/admin/case-studies/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+          showToast('Case study deleted', 'success');
+          await loadCaseStudiesData();
+          renderCurrentTable();
+        } else {
+          showToast(json.error || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error deleting case study', 'error');
+      }
+    }
+
+
+    // Case Studies Data & Handlers
+    rawData['case-studies'] = [];
+
+    async function loadCaseStudiesData() {
+      try {
+        const res = await fetch('/api/case-studies');
+        const json = await res.json();
+        if (json.success) {
+          rawData['case-studies'] = json.data || [];
+          document.getElementById('cnt-case-studies').textContent = rawData['case-studies'].length;
+          const statEl = document.getElementById('stat-total-case-studies');
+          if (statEl) statEl.textContent = rawData['case-studies'].length;
+        }
+      } catch (e) {
+        console.error('Error fetching case studies:', e);
+      }
+    }
+
+    function openCaseStudyModal(id = null) {
+      const modal = document.getElementById('caseStudyModal');
+      const form = document.getElementById('csForm');
+      form.reset();
+      document.getElementById('csId').value = '';
+
+      if (id) {
+        document.getElementById('csModalTitle').textContent = 'Edit Case Study';
+        const item = rawData['case-studies'].find(c => c.id === id);
+        if (item) {
+          document.getElementById('csId').value = item.id;
+          document.getElementById('csTitle').value = item.title || '';
+          document.getElementById('csTag').value = item.tag || '';
+          document.getElementById('csYear').value = item.year || '2026';
+          document.getElementById('csOrder').value = item.order_idx || 0;
+          document.getElementById('csDescription').value = item.description || '';
+          document.getElementById('csImageUrl').value = item.image_url || '';
+          document.getElementById('csMetric1Val').value = item.metric1_val || '';
+          document.getElementById('csMetric1Lbl').value = item.metric1_lbl || '';
+          document.getElementById('csMetric2Val').value = item.metric2_val || '';
+          document.getElementById('csMetric2Lbl').value = item.metric2_lbl || '';
+          document.getElementById('csLinkUrl').value = item.link_url || '';
+        }
+      } else {
+        document.getElementById('csModalTitle').textContent = 'Add New Case Study';
+        document.getElementById('csOrder').value = (rawData['case-studies'].length || 0) + 1;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeCsModal() {
+      document.getElementById('caseStudyModal').classList.remove('active');
+    }
+
+    async function handleCaseStudySubmit(e) {
+      e.preventDefault();
+      const form = document.getElementById('csForm');
+      const formData = new FormData(form);
+      const id = document.getElementById('csId').value;
+
+      const btn = document.getElementById('csSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const url = id ? `/api/admin/case-studies/${id}` : '/api/admin/case-studies';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          body: formData
+        });
+
+        const json = await res.json();
+        if (json.success) {
+          showToast(id ? 'Case study updated!' : 'Case study added!', 'success');
+          closeCsModal();
+          await loadCaseStudiesData();
+          renderCurrentTable();
+        } else {
+          showToast(json.error || 'Failed to save case study', 'error');
+        }
+      } catch (err) {
+        showToast('Network error saving case study', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Save Case Study';
+      }
+    }
+
+    async function deleteCaseStudy(id) {
+      if (!confirm('Are you sure you want to delete this case study? This will also remove it from the homepage.')) return;
+      try {
+        const res = await fetch(`/api/admin/case-studies/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+          showToast('Case study deleted', 'success');
+          await loadCaseStudiesData();
+          renderCurrentTable();
+        } else {
+          showToast(json.error || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast('Error deleting case study', 'error');
+      }
+    }
+
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span> <span>${msg}</span>`;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const json = await res.json();
+        if (json.success) {
+          const s = json.stats;
+          document.getElementById('stat-total-leads').textContent = s.totalLeads;
+          document.getElementById('stat-new-leads').textContent = `${s.newLeads} New Inquiries`;
+          document.getElementById('stat-total-consultations').textContent = s.totalConsultations;
+          document.getElementById('stat-total-careers').textContent = s.totalCareers;
+          document.getElementById('stat-new-careers').textContent = `${s.newCareers} New Applicants`;
+          document.getElementById('stat-total-newsletters').textContent = s.totalNewsletters;
+        }
+      } catch (e) {
+        console.error('Error loading stats:', e);
+      }
+    }
+
+    async function loadAllData() {
+      await loadStats();
+      await loadCaseStudiesData();
+      await loadCaseStudiesData();
+      try {
+        const [r1, r2, r3, r4] = await Promise.all([
+          fetch('/api/admin/contacts').then(r => r.json()),
+          fetch('/api/admin/consultations').then(r => r.json()),
+          fetch('/api/admin/careers').then(r => r.json()),
+          fetch('/api/admin/newsletters').then(r => r.json())
+        ]);
+
+        rawData.contacts = r1.data || [];
+        rawData.consultations = r2.data || [];
+        rawData.careers = r3.data || [];
+        rawData.newsletters = r4.data || [];
+
+        document.getElementById('cnt-contacts').textContent = rawData.contacts.length;
+        document.getElementById('cnt-consultations').textContent = rawData.consultations.length;
+        document.getElementById('cnt-careers').textContent = rawData.careers.length;
+        document.getElementById('cnt-newsletters').textContent = rawData.newsletters.length;
+
+        renderCurrentTable();
+      } catch (e) {
+        showToast('Error loading database records', 'error');
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById('searchInput').value = '';
+      renderCurrentTable();
+    }
+
+    function handleSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      renderCurrentTable(q);
+    }
+
+    function renderCurrentTable(filterText = '') {
+      const container = document.getElementById('tableContent');
+      let items = rawData[currentTab] || [];
+
+      if (filterText) {
+        items = items.filter(item => {
+          return Object.values(item).some(v => String(v || '').toLowerCase().includes(filterText));
+        });
+      }
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No entries found</h3>
+            <p style="margin-top:6px;">No submissions currently recorded in this category.</p>
+          </div>
+        `;
+        return;
+      }
+
+
+      if (currentTab === 'case-studies') {
+        container.innerHTML = `
+          <div class="cs-admin-header">
+            <div>
+              <h2 class="cs-admin-title">📁 Case Studies Showcase</h2>
+              <p class="cs-admin-subtitle">Cards created here dynamically render onto the website with 3D lightbulb illumination.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openCaseStudyModal()">➕ Add New Case Study</button>
+          </div>
+
+          <div class="admin-case-grid">
+            ${items.map(item => `
+              <div class="admin-case-card">
+                <div class="admin-case-thumb-wrap">
+                  <img src="${item.image_url || 'https://framerusercontent.com/images/9OzCOU8OyDs8HtnP9x5VLyaFopo.jpg'}" alt="${esc(item.title)}" class="admin-case-thumb">
+                  <div class="admin-case-badge">${esc(item.tag || 'CASE STUDY')}</div>
+                  <div class="admin-case-order">#${item.order_idx || 0}</div>
+                </div>
+                <div class="admin-case-body">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="admin-case-title">${esc(item.title)}</h3>
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:700;">${esc(item.year || '2026')}</span>
+                  </div>
+                  <p class="admin-case-desc">${esc(item.description || 'No description provided.')}</p>
+                  
+                  <div class="admin-case-metrics-row">
+                    <div>
+                      <div class="admin-case-metric-val">${esc(item.metric1_val || '-')}</div>
+                      <div class="admin-case-metric-lbl">${esc(item.metric1_lbl || '')}</div>
+                    </div>
+                    <div>
+                      <div class="admin-case-metric-val">${esc(item.metric2_val || '-')}</div>
+                      <div class="admin-case-metric-lbl">${esc(item.metric2_lbl || '')}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="admin-case-actions">
+                  <button class="action-btn" onclick="openCaseStudyModal(${item.id})">✏️ Edit</button>
+                  <button class="action-btn btn-del" onclick="deleteCaseStudy(${item.id})">🗑️ Delete</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        return;
+      }
+
+
+      if (currentTab === 'case-studies') {
+        container.innerHTML = `
+          <div class="cs-admin-header">
+            <div>
+              <h2 class="cs-admin-title">📁 Case Studies Showcase</h2>
+              <p class="cs-admin-subtitle">Cards created here dynamically render onto the website with 3D lightbulb illumination.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openCaseStudyModal()">➕ Add New Case Study</button>
+          </div>
+
+          <div class="admin-case-grid">
+            ${items.map(item => `
+              <div class="admin-case-card">
+                <div class="admin-case-thumb-wrap">
+                  <img src="${item.image_url || 'https://framerusercontent.com/images/9OzCOU8OyDs8HtnP9x5VLyaFopo.jpg'}" alt="${esc(item.title)}" class="admin-case-thumb">
+                  <div class="admin-case-badge">${esc(item.tag || 'CASE STUDY')}</div>
+                  <div class="admin-case-order">#${item.order_idx || 0}</div>
+                </div>
+                <div class="admin-case-body">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="admin-case-title">${esc(item.title)}</h3>
+                    <span style="font-size:12px; color:var(--text-muted); font-weight:700;">${esc(item.year || '2026')}</span>
+                  </div>
+                  <p class="admin-case-desc">${esc(item.description || 'No description provided.')}</p>
+                  
+                  <div class="admin-case-metrics-row">
+                    <div>
+                      <div class="admin-case-metric-val">${esc(item.metric1_val || '-')}</div>
+                      <div class="admin-case-metric-lbl">${esc(item.metric1_lbl || '')}</div>
+                    </div>
+                    <div>
+                      <div class="admin-case-metric-val">${esc(item.metric2_val || '-')}</div>
+                      <div class="admin-case-metric-lbl">${esc(item.metric2_lbl || '')}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="admin-case-actions">
+                  <button class="action-btn" onclick="openCaseStudyModal(${item.id})">✏️ Edit</button>
+                  <button class="action-btn btn-del" onclick="deleteCaseStudy(${item.id})">🗑️ Delete</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        return;
+      }
+
+      if (currentTab === 'contacts') {
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Applicant / Client</th>
+                <th>Service & Budget</th>
+                <th>Message Snippet</th>
+                <th>Date Received</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(i => `
+                <tr>
+                  <td>
+                    <div class="user-col">
+                      <span class="user-name">${esc(i.name)}</span>
+                      <span class="user-sub">✉️ ${esc(i.email)} ${i.phone ? '• 📞 ' + esc(i.phone) : ''}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="user-col">
+                      <span style="font-weight:600; color:#c4b5fd;">${esc(i.service || 'General')}</span>
+                      <span class="user-sub">${i.budget ? 'Budget: ' + esc(i.budget) : 'Flexible'}</span>
+                    </div>
+                  </td>
+                  <td style="max-width: 320px;">
+                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd;">
+                      ${esc(i.message)}
+                    </div>
+                  </td>
+                  <td style="color:var(--text-muted); font-size:13px;">
+                    ${formatDate(i.created_at)}
+                  </td>
+                  <td>
+                    <select onchange="updateStatus('contact', ${i.id}, this.value)" style="background:#1a1a24; color:#fff; border:1px solid var(--card-border); border-radius:6px; padding:4px 8px; font-family:inherit;">
+                      <option value="New" ${i.status === 'New' ? 'selected' : ''}>New</option>
+                      <option value="Contacted" ${i.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+                      <option value="Closed" ${i.status === 'Closed' ? 'selected' : ''}>Closed</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:6px;">
+                      <button class="action-btn" onclick="viewDetail('contact', ${i.id})">View</button>
+                      <button class="action-btn btn-del" onclick="deleteRecord('contact', ${i.id})">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else if (currentTab === 'consultations') {
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Client Name</th>
+                <th>Service</th>
+                <th>Slot Reserved</th>
+                <th>Notes</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(i => `
+                <tr>
+                  <td>
+                    <div class="user-col">
+                      <span class="user-name">${esc(i.name)}</span>
+                      <span class="user-sub">✉️ ${esc(i.email)} • 📞 ${esc(i.phone || 'N/A')}</span>
+                    </div>
+                  </td>
+                  <td><span style="font-weight:600; color:#c4b5fd;">${esc(i.service)}</span></td>
+                  <td>
+                    <div class="user-col">
+                      <span style="font-weight:600; color:#fff;">📅 ${esc(i.booking_date)}</span>
+                      <span class="user-sub">⏰ ${esc(i.booking_time)}</span>
+                    </div>
+                  </td>
+                  <td style="max-width:280px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${esc(i.notes || 'None')}
+                  </td>
+                  <td>
+                    <span class="status-pill status-confirmed">${esc(i.status)}</span>
+                  </td>
+                  <td>
+                    <button class="action-btn btn-del" onclick="deleteRecord('consultation', ${i.id})">Cancel</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else if (currentTab === 'careers') {
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Target Role</th>
+                <th>Portfolio / Links</th>
+                <th>Resume</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(i => `
+                <tr>
+                  <td>
+                    <div class="user-col">
+                      <span class="user-name">${esc(i.name)}</span>
+                      <span class="user-sub">✉️ ${esc(i.email)} • 📞 ${esc(i.phone)}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span style="font-weight:700; color:var(--accent-orange);">${esc(i.position)}</span>
+                  </td>
+                  <td>
+                    <div style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
+                      ${i.linkedin ? `<a href="${esc(i.linkedin)}" target="_blank" style="color:var(--accent-purple); text-decoration:none;">🔗 LinkedIn Profile</a>` : ''}
+                      ${i.portfolio ? `<a href="${esc(i.portfolio)}" target="_blank" style="color:#60a5fa; text-decoration:none;">🌐 Portfolio Website</a>` : ''}
+                      ${!i.linkedin && !i.portfolio ? '<span style="color:var(--text-muted);">None provided</span>' : ''}
+                    </div>
+                  </td>
+                  <td>
+                    ${i.resume_filename ? `
+                      <a href="/uploads/${i.resume_filename}" target="_blank" class="btn btn-outline" style="padding:4px 10px; font-size:12px;">
+                        📄 Download Resume
+                      </a>
+                    ` : '<span style="color:var(--text-muted);">No file</span>'}
+                  </td>
+                  <td>
+                    <select onchange="updateStatus('career', ${i.id}, this.value)" style="background:#1a1a24; color:#fff; border:1px solid var(--card-border); border-radius:6px; padding:4px 8px; font-family:inherit;">
+                      <option value="New" ${i.status === 'New' ? 'selected' : ''}>New</option>
+                      <option value="Reviewing" ${i.status === 'Reviewing' ? 'selected' : ''}>Reviewing</option>
+                      <option value="Interview" ${i.status === 'Interview' ? 'selected' : ''}>Interview</option>
+                      <option value="Hired" ${i.status === 'Hired' ? 'selected' : ''}>Hired</option>
+                      <option value="Rejected" ${i.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:6px;">
+                      <button class="action-btn" onclick="viewDetail('career', ${i.id})">Details</button>
+                      <button class="action-btn btn-del" onclick="deleteRecord('career', ${i.id})">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else if (currentTab === 'newsletters') {
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Subscriber Email</th>
+                <th>Source Page</th>
+                <th>Subscribed Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(i => `
+                <tr>
+                  <td>
+                    <span style="font-weight:600; color:#fff; font-size:15px;">${esc(i.email)}</span>
+                  </td>
+                  <td style="color:var(--text-muted);">${esc(i.source)}</td>
+                  <td style="color:var(--text-muted);">${formatDate(i.created_at)}</td>
+                  <td><span class="status-pill status-subscribed">Active</span></td>
+                  <td>
+                    <button class="action-btn btn-del" onclick="deleteRecord('newsletter', ${i.id})">Remove</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    async function updateStatus(type, id, status) {
+      try {
+        const res = await fetch('/api/admin/status', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, id, status })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`Status updated to ${status}`, 'success');
+          loadStats();
+        }
+      } catch (e) {
+        showToast('Failed to update status', 'error');
+      }
+    }
+
+    async function deleteRecord(type, id) {
+      if (!confirm('Are you sure you want to delete this record?')) return;
+      try {
+        const res = await fetch('/api/admin/record', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, id })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('Record deleted', 'success');
+          loadAllData();
+        }
+      } catch (e) {
+        showToast('Failed to delete record', 'error');
+      }
+    }
+
+    function viewDetail(type, id) {
+      const item = (rawData[type + 's'] || rawData.contacts).find(x => x.id === id);
+      if (!item) return;
+
+      document.getElementById('modalTitle').textContent = `${type.toUpperCase()} #${item.id} - ${item.name || item.email}`;
+      let html = '';
+      for (const [k, v] of Object.entries(item)) {
+        html += `<div style="margin-bottom:8px;"><strong style="color:var(--accent-purple); text-transform:capitalize;">${k.replace('_', ' ')}:</strong> <span style="color:#fff;">${esc(String(v || 'N/A'))}</span></div>`;
+      }
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
+    function exportCurrentCSV() {
+      window.location.href = `/api/admin/export/${currentTab}`;
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatDate(dt) {
+      if (!dt) return 'N/A';
+      try {
+        return new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return dt;
+      }
+    }
+
+    // Initialize
+    loadAllData();
+  </script>
+
+  <!-- Case Study Editor Modal -->
+  <div class="modal-backdrop" id="caseStudyModal">
+    <div class="modal" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+      <h3 class="modal-title" id="csModalTitle">Add New Case Study</h3>
+      <form id="csForm" onsubmit="handleCaseStudySubmit(event)">
+        <input type="hidden" id="csId" name="id" value="">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Project Title *</label>
+            <input type="text" class="form-control" id="csTitle" name="title" required
+              placeholder="e.g. Hreemkar Papers">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category / Badge</label>
+            <input type="text" class="form-control" id="csTag" name="tag" placeholder="e.g. MANUFACTURING & SUPPLY">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Year</label>
+            <input type="text" class="form-control" id="csYear" name="year" value="2026" placeholder="2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Display Order (1, 2, 3...)</label>
+            <input type="number" class="form-control" id="csOrder" name="order_idx" value="1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="csDescription" name="description" rows="3"
+            placeholder="Brief summary of the case study..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Image (Upload File or Enter URL)</label>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <input type="file" class="form-control" id="csImageFile" name="image" accept="image/*">
+            <input type="url" class="form-control" id="csImageUrl" name="image_url"
+              placeholder="Or paste image URL (https://...)">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Metric 1 Value</label>
+            <input type="text" class="form-control" id="csMetric1Val" name="metric1_val" placeholder="e.g. +70%">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Metric 1 Label</label>
+            <input type="text" class="form-control" id="csMetric1Lbl" name="metric1_lbl"
+              placeholder="e.g. Increase in enquiries">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Metric 2 Value</label>
+            <input type="text" class="form-control" id="csMetric2Val" name="metric2_val" placeholder="e.g. +52%">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Metric 2 Label</label>
+            <input type="text" class="form-control" id="csMetric2Lbl" name="metric2_lbl"
+              placeholder="e.g. Growth in visits">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Case Study URL / Link</label>
+          <input type="text" class="form-control" id="csLinkUrl" name="link_url"
+            placeholder="/case-studies/your-project">
+        </div>
+
+        <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn btn-outline" onclick="closeCsModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="csSubmitBtn">💾 Save Case Study</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Case Study Editor Modal -->
+  <div class="modal-backdrop" id="caseStudyModal">
+    <div class="modal" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+      <h3 class="modal-title" id="csModalTitle">Add New Case Study</h3>
+      <form id="csForm" onsubmit="handleCaseStudySubmit(event)">
+        <input type="hidden" id="csId" name="id" value="">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Project Title *</label>
+            <input type="text" class="form-control" id="csTitle" name="title" required
+              placeholder="e.g. Hreemkar Papers">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category / Badge</label>
+            <input type="text" class="form-control" id="csTag" name="tag" placeholder="e.g. MANUFACTURING & SUPPLY">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Year</label>
+            <input type="text" class="form-control" id="csYear" name="year" value="2026" placeholder="2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Display Order (1, 2, 3...)</label>
+            <input type="number" class="form-control" id="csOrder" name="order_idx" value="1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="csDescription" name="description" rows="3"
+            placeholder="Brief summary of the case study..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Image (Upload File or Enter URL)</label>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <input type="file" class="form-control" id="csImageFile" name="image" accept="image/*">
+            <input type="url" class="form-control" id="csImageUrl" name="image_url"
+              placeholder="Or paste image URL (https://...)">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Metric 1 Value</label>
+            <input type="text" class="form-control" id="csMetric1Val" name="metric1_val" placeholder="e.g. +70%">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Metric 1 Label</label>
+            <input type="text" class="form-control" id="csMetric1Lbl" name="metric1_lbl"
+              placeholder="e.g. Increase in enquiries">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Metric 2 Value</label>
+            <input type="text" class="form-control" id="csMetric2Val" name="metric2_val" placeholder="e.g. +52%">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Metric 2 Label</label>
+            <input type="text" class="form-control" id="csMetric2Lbl" name="metric2_lbl"
+              placeholder="e.g. Growth in visits">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Case Study URL / Link</label>
+          <input type="text" class="form-control" id="csLinkUrl" name="link_url"
+            placeholder="/case-studies/your-project">
+        </div>
+
+        <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn btn-outline" onclick="closeCsModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="csSubmitBtn">💾 Save Case Study</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+
+</html>
