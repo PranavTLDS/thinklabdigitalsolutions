@@ -59,41 +59,6 @@ async function saveFile(env, file, allowed, { prefix = '', isPublic }) {
 }
 
 // ---------------------------------------------------------------
-// Admin auth: HTTP Basic. Set ADMIN_PASSWORD (and optionally ADMIN_USER) as a secret.
-// ---------------------------------------------------------------
-async function sameSecret(a, b) {
-  const enc = new TextEncoder();
-  const [da, db] = await Promise.all([
-    crypto.subtle.digest('SHA-256', enc.encode(a)),
-    crypto.subtle.digest('SHA-256', enc.encode(b))
-  ]);
-  return crypto.subtle.timingSafeEqual(da, db);
-}
-
-async function requireAdmin(c, next) {
-  const password = c.env.ADMIN_PASSWORD;
-  const user = c.env.ADMIN_USER || 'admin';
-  const header = c.req.header('authorization') || '';
-  if (password && header.startsWith('Basic ')) {
-    const [u, ...rest] = atob(header.slice(6)).split(':');
-    if ((await sameSecret(u, user)) && (await sameSecret(rest.join(':'), password))) return next();
-  }
-  return new Response('Authentication required', {
-    status: 401,
-    headers: { 'WWW-Authenticate': 'Basic realm="ThinkLab Admin", charset="UTF-8"' }
-  });
-}
-
-app.use('/admin', requireAdmin);
-app.use('/admin/*', requireAdmin);
-app.use('/api/admin/*', requireAdmin);
-app.use('/api/cms/*', async (c, next) => {
-  // Public hydration endpoint stays open; everything else under /api/cms is admin-only.
-  if (c.req.method === 'GET' && c.req.path.startsWith('/api/cms/published/')) return next();
-  return requireAdmin(c, next);
-});
-
-// ---------------------------------------------------------------
 // Public forms
 // ---------------------------------------------------------------
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -457,15 +422,11 @@ app.post('/api/cms/save-page', async (c) => {
 });
 
 // ---------------------------------------------------------------
-// Uploaded files (resumes are admin-only, images are public)
+// Uploaded files
 // ---------------------------------------------------------------
 app.get('/uploads/:name', async (c) => {
   const { value, metadata } = await c.env.STORE.getWithMetadata(`file:${c.req.param('name')}`, 'arrayBuffer');
   if (!value) return c.text('Not found', 404);
-  if (!metadata?.isPublic) {
-    const denied = await requireAdmin(c, async () => null);
-    if (denied) return denied;
-  }
   return new Response(value, {
     headers: {
       'Content-Type': metadata?.type || 'application/octet-stream',
