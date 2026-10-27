@@ -10,9 +10,9 @@
     "run_worker_first": true
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "thinklab", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "migrations" }
+    { "binding": "DB", "database_name": "thinklab", "database_id": "bd5d3158-5a2c-49f9-a9bc-7b67d1e697e1", "migrations_dir": "migrations" }
   ],
   "kv_namespaces": [
-    { "binding": "STORE", "id": "REPLACE_WITH_KV_ID" }
+    { "binding": "STORE", "id": "0cbe1e2cd4b14ec7a80054b44a7af3d4" }
   ]
 }
