@@ -1,16 +1,18 @@
 {
   "name": "thinklab-digital-solutions",
   "version": "1.0.0",
-  "description": "ThinkLab Digital Solutions - Full Website Clone with Node.js Express Backend",
-  "main": "server.js",
+  "description": "ThinkLab Digital Solutions website on Cloudflare Workers (Hono, D1, KV)",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "free-port": "node -e \"const { execSync } = require('child_process'); try { const out = execSync('netstat -ano').toString(); out.split('\\n').filter(l => l.includes(':3000 ') && l.includes('LISTENING')).forEach(l => { const pid = l.trim().split(/\\s+/).pop(); if (pid && pid !== '0') execSync('taskkill /F /PID ' + pid); }); console.log('Port 3000 cleared'); } catch(e){}\""
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 migrations apply thinklab --local",
+    "db:remote": "wrangler d1 migrations apply thinklab --remote"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "multer": "^1.4.5-lts.1"
+    "hono": "^4.13.14"
+  },
+  "devDependencies": {
+    "wrangler": "^4.153.0"
   }
 }
